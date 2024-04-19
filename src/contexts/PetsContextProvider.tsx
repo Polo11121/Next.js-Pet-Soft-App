@@ -13,7 +13,8 @@ type PetsContextValue = {
   pets: Pet[];
   selectedPetId: string | null;
   setSelectedPetId: Dispatch<SetStateAction<string | null>>;
-  selectedPet?: Pet;
+  setPets: Dispatch<SetStateAction<Pet[]>>;
+  selectedPet: Pet | undefined;
   numberOfPets: number;
 };
 

@@ -1,6 +1,7 @@
 import { ContentBlock } from "@/components/ContentBlock";
 import { Heading } from "@/components/Heading";
 import { NumberOfPets } from "@/components/NumberOfPets";
+import { PetButton } from "@/components/PetButton";
 import { PetDetails } from "@/components/PetDetails";
 import { PetsList } from "@/components/PetsList";
 import { SearchForm } from "@/components/SearchForm";
@@ -23,6 +24,9 @@ const DashboardPage = () => (
       <div className="relative md:row-start-2 md:row-span-full md:col-start-1 md:col-span-1">
         <ContentBlock>
           <PetsList />
+          <div className="absolute bottom-4 right-4">
+            <PetButton actionType="add" />
+          </div>
         </ContentBlock>
       </div>
       <div className="md:row-start-1 md:row-span-full md:col-start-2 md:col-span-full">
