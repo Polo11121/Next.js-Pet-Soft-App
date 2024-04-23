@@ -1,21 +1,33 @@
 "use client";
 
+import { useTransition } from "react";
 import { usePetsContext } from "@/contexts";
 import { EmptyView } from "@/components/EmptyView";
 import { PetButton } from "@/components/PetButton";
+import { deletePetAction } from "@/actions/pets";
+import { toast } from "sonner";
 import Image from "next/image";
 
 export const PetDetails = () => {
-  const { selectedPet, setPets } = usePetsContext();
+  const { selectedPet } = usePetsContext();
+  const [isPending, startTransition] = useTransition();
 
   if (!selectedPet) {
     return <EmptyView text="No pet selected." />;
   }
 
   const deletePetHandler = () =>
-    setPets((prevState) =>
-      prevState.filter((pet) => pet.id !== selectedPet.id)
-    );
+    startTransition(async () => {
+      if (selectedPet?.id) {
+        const error = await deletePetAction(selectedPet.id);
+
+        if (error) {
+          toast.warning(error.message);
+        }
+
+        toast("Checkout pet successfully!");
+      }
+    });
 
   return (
     <section className="flex flex-col w-full h-full">
@@ -31,8 +43,14 @@ export const PetDetails = () => {
           {selectedPet?.name}
         </h2>
         <div className="ml-auto space-x-2">
-          <PetButton actionType="edit">Edit</PetButton>
-          <PetButton actionType="checkout" onClick={deletePetHandler}>
+          <PetButton actionType="edit" isPending={isPending}>
+            Edit
+          </PetButton>
+          <PetButton
+            actionType="checkout"
+            onClick={deletePetHandler}
+            isPending={isPending}
+          >
             Checkout
           </PetButton>
         </div>
@@ -51,7 +69,6 @@ export const PetDetails = () => {
           <p className="mt-1 text-lg text-zinc-800">{selectedPet?.age}</p>
         </div>
       </div>
-
       <section className="flex-1 bg-white px-7 py-5 rounded-md mb-9 mx-8 border border-light">
         {selectedPet?.notes}
       </section>

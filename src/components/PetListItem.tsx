@@ -1,5 +1,5 @@
-import { Pet } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Pet } from "@prisma/client";
 import Image from "next/image";
 
 type PetListItemProps = {
@@ -22,7 +22,10 @@ export const PetListItem = ({
       )}
     >
       <Image
-        src={pet.imageUrl}
+        src={
+          pet.imageUrl ||
+          "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png"
+        }
         alt="pet image"
         height={45}
         width={45}

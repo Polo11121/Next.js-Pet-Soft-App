@@ -7,26 +7,24 @@ import {
   createContext,
   useState,
 } from "react";
-import { Pet } from "@/lib/types";
+import { Pet } from "@prisma/client";
 
 type PetsContextValue = {
   pets: Pet[];
   selectedPetId: string | null;
   setSelectedPetId: Dispatch<SetStateAction<string | null>>;
-  setPets: Dispatch<SetStateAction<Pet[]>>;
   selectedPet: Pet | undefined;
   numberOfPets: number;
 };
 
-type PetsContextProviderProps = { data: Pet[] } & PropsWithChildren;
+type PetsContextProviderProps = { pets: Pet[] } & PropsWithChildren;
 
 export const PetsContext = createContext<null | PetsContextValue>(null);
 
 export const PetsContextProvider = ({
   children,
-  data,
+  pets,
 }: PetsContextProviderProps) => {
-  const [pets, setPets] = useState<Pet[]>(data);
   const [selectedPetId, setSelectedPetId] = useState<null | string>(null);
 
   const selectedPet = pets.find((pet) => selectedPetId === pet.id);
@@ -36,7 +34,6 @@ export const PetsContextProvider = ({
     pets,
     selectedPetId,
     setSelectedPetId,
-    setPets,
     selectedPet,
     numberOfPets,
   };

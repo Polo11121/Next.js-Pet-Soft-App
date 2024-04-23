@@ -1,11 +1,13 @@
 "use client";
 
-import { FormEvent } from "react";
+import { FormEvent, useTransition } from "react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { usePetsContext } from "@/contexts";
+import { addPetAction, editPetAction } from "@/actions/pets";
+import { toast } from "sonner";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -13,36 +15,36 @@ type PetFormProps = {
 };
 
 export const PetForm = ({ actionType, onFormSubmit }: PetFormProps) => {
-  const { setPets, selectedPet } = usePetsContext();
-  const submitHandler = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const { selectedPet } = usePetsContext();
 
-    const formData = new FormData(event.currentTarget);
+  const [isPending, startTransition] = useTransition();
+  const submitHandler = (formData: FormData) =>
+    startTransition(async () => {
+      if (actionType === "add") {
+        const error = await addPetAction(formData);
 
-    const pet = {
-      name: formData.get("name") as string,
-      ownerName: formData.get("ownerName") as string,
-      imageUrl: formData.get("imageUrl") as string,
-      age: Number(formData.get("age") as string),
-      notes: formData.get("notes") as string,
-      id: Date.now().toString(),
-    };
+        if (error) {
+          toast.error(error.message);
+        }
 
-    if (actionType === "add") {
-      setPets((prevState) => [...prevState, pet]);
-    } else {
-      setPets((prevState) =>
-        prevState.map((prevPet) =>
-          prevPet.id === selectedPet?.id ? pet : prevPet
-        )
-      );
-    }
+        toast("Pet added successfully!");
+      }
 
-    onFormSubmit?.();
-  };
+      if (selectedPet?.id && actionType === "edit") {
+        const error = await editPetAction(selectedPet?.id as string, formData);
+
+        if (error) {
+          toast.error(error.message);
+        }
+
+        toast("Pet edited successfully!");
+      }
+
+      onFormSubmit?.();
+    });
 
   return (
-    <form onSubmit={submitHandler} className="flex flex-col gap-3">
+    <form action={submitHandler} className="flex flex-col gap-3">
       <div className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
@@ -95,7 +97,9 @@ export const PetForm = ({ actionType, onFormSubmit }: PetFormProps) => {
           />
         </div>
       </div>
-      <Button>{actionType === "add" ? "Add a new pet" : "Edit pet"}</Button>
+      <Button disabled={isPending}>
+        {actionType === "add" ? "Add a new pet" : "Edit pet"}
+      </Button>
     </form>
   );
 };
