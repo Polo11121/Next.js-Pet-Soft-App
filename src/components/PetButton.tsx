@@ -1,8 +1,9 @@
 "use client";
 
-import { PlusIcon } from "@radix-ui/react-icons";
-import { Button } from "./ui/Button";
 import { PropsWithChildren, useState } from "react";
+import { flushSync } from "react-dom";
+import { PlusIcon } from "@radix-ui/react-icons";
+import { Button } from "@/components/ui/Button";
 import {
   Dialog,
   DialogHeader,
@@ -15,13 +16,11 @@ import { PetForm } from "@/components/PetForm";
 
 type PetButtonProps = {
   actionType: "add" | "checkout" | "edit";
-  onClick?: () => void;
-  isPending?: boolean;
+  onClick?: () => Promise<void>;
 } & PropsWithChildren;
 
 export const PetButton = ({
   actionType,
-  isPending,
   children,
   onClick,
 }: PetButtonProps) => {
@@ -29,6 +28,14 @@ export const PetButton = ({
 
   const toggleModalVisibilityHandler = () =>
     setIsFormOpen((prevState) => !prevState);
+
+  const clickHandler = async () => {
+    flushSync(() => {
+      toggleModalVisibilityHandler();
+    });
+
+    await onClick?.();
+  };
 
   if (actionType === "checkout") {
     return (
@@ -43,17 +50,12 @@ export const PetButton = ({
           <p>Are you sure you want to checkout this pet?</p>
           <DialogFooter>
             <Button
-              disabled={isPending}
               onClick={toggleModalVisibilityHandler}
               variant={"secondary"}
             >
               No
             </Button>
-            <Button
-              disabled={isPending}
-              onClick={onClick}
-              variant={"destructive"}
-            >
+            <Button onClick={clickHandler} variant={"destructive"}>
               Yes
             </Button>
           </DialogFooter>
@@ -70,9 +72,7 @@ export const PetButton = ({
             <PlusIcon className="w-6 h-6" />
           </Button>
         ) : (
-          <Button variant="secondary" disabled={isPending}>
-            {children}
-          </Button>
+          <Button variant="secondary">{children}</Button>
         )}
       </DialogTrigger>
       <DialogContent>

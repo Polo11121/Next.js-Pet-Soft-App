@@ -1,13 +1,11 @@
 "use client";
 
-import { FormEvent, useTransition } from "react";
+import { flushSync } from "react-dom";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { usePetsContext } from "@/contexts";
-import { addPetAction, editPetAction } from "@/actions/pets";
-import { toast } from "sonner";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -15,33 +13,21 @@ type PetFormProps = {
 };
 
 export const PetForm = ({ actionType, onFormSubmit }: PetFormProps) => {
-  const { selectedPet } = usePetsContext();
+  const { selectedPet, addPetHandler, editPetHandler } = usePetsContext();
 
-  const [isPending, startTransition] = useTransition();
-  const submitHandler = (formData: FormData) =>
-    startTransition(async () => {
-      if (actionType === "add") {
-        const error = await addPetAction(formData);
-
-        if (error) {
-          toast.error(error.message);
-        }
-
-        toast("Pet added successfully!");
-      }
-
-      if (selectedPet?.id && actionType === "edit") {
-        const error = await editPetAction(selectedPet?.id as string, formData);
-
-        if (error) {
-          toast.error(error.message);
-        }
-
-        toast("Pet edited successfully!");
-      }
-
+  const submitHandler = async (formData: FormData) => {
+    flushSync(() => {
       onFormSubmit?.();
     });
+
+    if (actionType === "add") {
+      await addPetHandler(formData);
+    }
+
+    if (selectedPet?.id && actionType === "edit") {
+      await editPetHandler(formData);
+    }
+  };
 
   return (
     <form action={submitHandler} className="flex flex-col gap-3">
@@ -97,9 +83,7 @@ export const PetForm = ({ actionType, onFormSubmit }: PetFormProps) => {
           />
         </div>
       </div>
-      <Button disabled={isPending}>
-        {actionType === "add" ? "Add a new pet" : "Edit pet"}
-      </Button>
+      <Button>{actionType === "add" ? "Add a new pet" : "Edit pet"}</Button>
     </form>
   );
 };

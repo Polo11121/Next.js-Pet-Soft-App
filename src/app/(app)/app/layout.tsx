@@ -15,7 +15,7 @@ const AppLayout = async ({ children }: Readonly<PropsWithChildren>) => {
       <div className="flex flex-col max-w-[1050px] mx-auto px-4 min-h-screen">
         <AppHeader />
         <SearchContextProvider>
-          <PetsContextProvider pets={pets}>{children}</PetsContextProvider>
+          <PetsContextProvider data={pets}>{children}</PetsContextProvider>
         </SearchContextProvider>
         <AppFooter />
       </div>
