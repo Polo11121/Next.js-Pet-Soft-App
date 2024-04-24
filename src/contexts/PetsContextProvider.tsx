@@ -12,13 +12,15 @@ import { Pet } from "@prisma/client";
 import { addPetAction, deletePetAction, editPetAction } from "@/actions/pets";
 import { toast } from "sonner";
 
+type PetFormData = Omit<Pet, "createdAt" | "updatedAt" | "id">;
+
 type PetsContextValue = {
   pets: Pet[];
   selectedPetId: string | null;
   setSelectedPetId: Dispatch<SetStateAction<string | null>>;
   selectedPet: Pet | undefined;
-  editPetHandler: (formData: FormData) => Promise<void>;
-  addPetHandler: (formData: FormData) => Promise<void>;
+  editPetHandler: (pet: PetFormData) => Promise<void>;
+  addPetHandler: (pet: PetFormData) => Promise<void>;
   deletePetHandler: () => Promise<void>;
   numberOfPets: number;
 };
@@ -28,9 +30,10 @@ type PetsContextProviderProps = { data: Pet[] } & PropsWithChildren;
 export const PetsContext = createContext<null | PetsContextValue>(null);
 
 type State = (Pet & { selected?: boolean })[];
+
 type Action = {
   action: "edit" | "add" | "delete";
-  payload: Omit<Pet, "createdAt" | "updatedAt" | "id">;
+  payload: PetFormData;
 };
 
 export const PetsContextProvider = ({
@@ -50,7 +53,6 @@ export const PetsContextProvider = ({
               id: Date.now().toString(),
               createdAt: new Date(),
               updatedAt: new Date(),
-              selected: true,
             },
           ];
         case "edit":
@@ -61,6 +63,7 @@ export const PetsContextProvider = ({
                   id: Date.now().toString(),
                   createdAt: new Date(),
                   updatedAt: new Date(),
+                  selected: true,
                 }
               : statePet
           );
@@ -77,19 +80,7 @@ export const PetsContextProvider = ({
   );
   const numberOfPets = pets.length;
 
-  const formatFormData = (formData: FormData) => ({
-    name: formData.get("name") as string,
-    ownerName: formData.get("ownerName") as string,
-    imageUrl:
-      (formData.get("imageUrl") as string) ||
-      "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-    age: Number(formData.get("age") as string),
-    notes: formData.get("notes") as string,
-  });
-
-  const addPetHandler = async (formData: FormData) => {
-    const pet = formatFormData(formData);
-
+  const addPetHandler = async (pet: PetFormData) => {
     setPets({
       action: "add",
       payload: pet,
@@ -104,9 +95,7 @@ export const PetsContextProvider = ({
     toast("Pet added successfully!");
   };
 
-  const editPetHandler = async (formData: FormData) => {
-    const pet = formatFormData(formData);
-
+  const editPetHandler = async (pet: PetFormData) => {
     setPets({
       action: "edit",
       payload: pet,

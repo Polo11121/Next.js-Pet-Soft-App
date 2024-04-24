@@ -1,3 +1,4 @@
+import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Pet } from "@prisma/client";
 import Image from "next/image";
@@ -22,10 +23,7 @@ export const PetListItem = ({
       )}
     >
       <Image
-        src={
-          pet.imageUrl ||
-          "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png"
-        }
+        src={pet.imageUrl || DEFAULT_PET_IMAGE}
         alt="pet image"
         height={45}
         width={45}
