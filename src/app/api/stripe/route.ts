@@ -21,8 +21,10 @@ export const POST = async (request: Request) => {
 
   switch (event.type) {
     case "checkout.session.completed":
-      prisma.user.update({
-        where: { email: event.data.object.customer_email },
+      await prisma.user.update({
+        where: {
+          email: event.data.object.customer_email,
+        },
         data: { hasPaid: true },
       });
       break;
