@@ -119,4 +119,6 @@ export const giveAccess = async () => {
       message: "Could not give access.",
     };
   }
+
+  window.location.href = process.env.NEXT_PUBLIC_URL + "/app/dashboard";
 };
