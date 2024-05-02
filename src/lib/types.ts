@@ -1,8 +1,6 @@
-export type Pet = {
-  id: string;
-  name: string;
-  ownerName: string;
-  age: number;
-  notes: string;
-  imageUrl: string;
-};
+import { Pet } from "@prisma/client";
+
+export type PetFormData = Omit<
+  Pet,
+  "id" | "updatedAt" | "createdAt" | "userId"
+>;

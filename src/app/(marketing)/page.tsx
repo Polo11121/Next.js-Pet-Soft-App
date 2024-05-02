@@ -26,7 +26,7 @@ const HomePage = () => (
           <Link href="/sign-up">Get started </Link>
         </Button>
         <Button asChild variant="secondary">
-          <Link href="/sign-in">Log In</Link>
+          <Link href="/sign-in">Sign In</Link>
         </Button>
       </div>
     </div>

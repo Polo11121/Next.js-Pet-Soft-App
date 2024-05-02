@@ -11,8 +11,8 @@ import {
 import { Pet } from "@prisma/client";
 import { addPetAction, deletePetAction, editPetAction } from "@/actions/pets";
 import { toast } from "sonner";
-
-type PetFormData = Omit<Pet, "createdAt" | "updatedAt" | "id">;
+import { useSession } from "next-auth/react";
+import { PetFormData } from "@/lib/types";
 
 type PetsContextValue = {
   pets: Pet[];
@@ -40,6 +40,7 @@ export const PetsContextProvider = ({
   children,
   data,
 }: PetsContextProviderProps) => {
+  const { data: session } = useSession();
   const [selectedPetId, setSelectedPetId] = useState<null | string>(null);
   const [pets, setPets] = useOptimistic<State, Action>(
     data,
@@ -53,6 +54,7 @@ export const PetsContextProvider = ({
               id: Date.now().toString(),
               createdAt: new Date(),
               updatedAt: new Date(),
+              userId: session?.user.id as string,
             },
           ];
         case "edit":
@@ -64,6 +66,7 @@ export const PetsContextProvider = ({
                   createdAt: new Date(),
                   updatedAt: new Date(),
                   selected: true,
+                  userId: session?.user.id as string,
                 }
               : statePet
           );
