@@ -38,6 +38,8 @@ const PaymentPage = ({
       if (response?.message) {
         toast.error(response.message);
         redirect("/payment?canceled=true");
+      } else {
+        window.location.href = "/app/dashboard";
       }
     });
 
