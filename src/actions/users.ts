@@ -120,5 +120,5 @@ export const giveAccess = async () => {
     };
   }
 
-  window.location.href = process.env.NEXT_PUBLIC_URL + "/app/dashboard";
+  window.location.href = "/app/dashboard";
 };
