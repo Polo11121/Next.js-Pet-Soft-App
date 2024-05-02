@@ -32,5 +32,5 @@ export const POST = async (request: Request) => {
       console.log(`Unhandled event type ${event.type}`);
   }
 
-  return Response.json(event, { status: 200 });
+  return Response.json(null, { status: 200 });
 };
