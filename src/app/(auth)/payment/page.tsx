@@ -33,13 +33,14 @@ const PaymentPage = ({
   const giveAccessHandler = () =>
     startTransition(async () => {
       const response = await giveAccess();
+      await update(true);
 
       if (response?.message) {
         toast.error(response.message);
         redirect("/payment?canceled=true");
+      } else {
+        redirect("/app/dashboard");
       }
-
-      await update(true);
     });
 
   return (

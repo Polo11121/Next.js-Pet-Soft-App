@@ -119,6 +119,4 @@ export const giveAccess = async () => {
       message: "Could not give access.",
     };
   }
-
-  redirect("/app/dashboard");
 };
