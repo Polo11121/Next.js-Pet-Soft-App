@@ -1,6 +1,7 @@
 import { PropsWithChildren } from "react";
 import { Toaster } from "@/components/ui/Sonner";
 import { Inter } from "next/font/google";
+import { NextAuthProvider } from "@/components/NextAuthProvider";
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 
@@ -14,8 +15,10 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: Readonly<PropsWithChildren>) => (
   <html lang="en">
     <body className={`${inter.className} text-sm text-zinc-900 bg-[#E5E8EC]`}>
-      <Toaster position="top-right" />
-      {children}
+      <NextAuthProvider>
+        <Toaster position="top-right" />
+        {children}
+      </NextAuthProvider>
     </body>
   </html>
 );

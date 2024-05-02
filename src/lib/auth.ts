@@ -39,28 +39,63 @@ const config: NextAuthConfig = {
   ],
   callbacks: {
     authorized: ({ auth, request }) => {
-      const isLoggedOut = Boolean(auth?.user);
+      const isLoggedIn = Boolean(auth?.user);
       const isTryingToAccessProtectedPage =
         request.nextUrl.pathname.includes("/app");
+      const isTryingToAccessPaymentPage =
+        request.nextUrl.pathname.includes("/payment");
 
-      if (!isLoggedOut && isTryingToAccessProtectedPage) {
-        return false;
+      if (isLoggedIn) {
+        if (!auth?.user.hasAccess && !isTryingToAccessPaymentPage) {
+          return Response.redirect(new URL("/payment", request.nextUrl));
+        }
+
+        if (!auth?.user.hasAccess && isTryingToAccessPaymentPage) {
+          return true;
+        }
+
+        if (auth?.user.hasAccess && isTryingToAccessProtectedPage) {
+          return true;
+        }
+
+        if (
+          auth?.user.hasAccess &&
+          (!isTryingToAccessProtectedPage || isTryingToAccessPaymentPage)
+        ) {
+          return Response.redirect(new URL("/app/dashboard", request.nextUrl));
+        }
       }
-      if (isLoggedOut && isTryingToAccessProtectedPage) {
-        return true;
-      }
-      if (isLoggedOut && !isTryingToAccessProtectedPage) {
-        return Response.redirect(new URL("/app/dashboard", request.nextUrl));
-      }
-      if (!isLoggedOut && !isTryingToAccessProtectedPage) {
-        return true;
+
+      if (!isLoggedIn) {
+        if (isTryingToAccessProtectedPage || isTryingToAccessPaymentPage) {
+          return Response.redirect(new URL("/sign-in", request.nextUrl));
+        }
+
+        if (!isTryingToAccessProtectedPage) {
+          return true;
+        }
       }
 
       return false;
     },
-    jwt: ({ token, user }) => {
+    jwt: async ({ token, user, trigger }) => {
       if (user?.id) {
         token.id = user.id;
+        token.hasPaid = user.hasPaid;
+        token.hasAccess = user.hasAccess;
+      }
+
+      if (trigger === "update") {
+        const updatedUser = await prisma.user.findUnique({
+          where: {
+            id: token.id,
+          },
+        });
+
+        if (updatedUser) {
+          token.hasPaid = updatedUser.hasPaid;
+          token.hasAccess = updatedUser.hasAccess;
+        }
       }
 
       return token;
@@ -68,6 +103,8 @@ const config: NextAuthConfig = {
     session: ({ session, token }) => {
       if (session.user) {
         session.user.id = token.id;
+        session.user.hasPaid = token.hasPaid;
+        session.user.hasAccess = token.hasAccess;
       }
 
       return session;
